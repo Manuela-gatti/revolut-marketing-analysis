@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Revolut — Marketing Analysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --fd:"Inter Tight",Inter,"Helvetica Neue",Arial,sans-serif; --fb:Inter,"Helvetica Neue",Arial,sans-serif;
+  --blue:#1E1EFF; --blue-2:#3A3AFF; --blue-soft:#E8E8FF; --ink:#0B0B0F; --ink-2:#17171D;
+  --lime:#D9FF3F; --white:#fff; --paper:#F4F4F7; --muted:#6B6B78; --line:rgba(11,11,15,.10);
+  --violet:#7A3CFF; --pink:#FF3CA6;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:#050507;overflow:hidden;font-family:var(--fb);color:var(--ink);-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,.display{font-family:var(--fd);letter-spacing:-.02em}
+
+/* ---------- Stage ---------- */
+#viewport{position:fixed;inset:0;overflow:hidden}
+#stage{width:1600px;height:900px;position:absolute;left:50%;top:50%;transform-origin:center center;overflow:hidden;border-radius:6px;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+.slide{position:absolute;inset:0;padding:72px 88px;opacity:0;visibility:hidden;transition:opacity .5s ease,visibility .5s;overflow:hidden}
+.slide.active{opacity:1;visibility:visible}
+.slide.light{background:var(--white)}
+.slide.paper{background:var(--paper)}
+.slide.dark{background:var(--ink);color:var(--white)}
+.slide.blue{background:var(--blue);color:var(--white)}
+
+/* reveal animation */
+.r{opacity:0;transform:translateY(22px);transition:opacity .6s cubic-bezier(.2,.7,.2,1),transform .6s cubic-bezier(.2,.7,.2,1)}
+.slide.active .r{opacity:1;transform:none}
+.slide.active .r.d1{transition-delay:.08s}.slide.active .r.d2{transition-delay:.16s}.slide.active .r.d3{transition-delay:.24s}
+.slide.active .r.d4{transition-delay:.32s}.slide.active .r.d5{transition-delay:.40s}.slide.active .r.d6{transition-delay:.48s}
+.slide.active .r.d7{transition-delay:.56s}.slide.active .r.d8{transition-delay:.64s}
+
+/* chrome on slides */
+.brand{position:absolute;top:34px;left:88px;font:700 15px var(--fd);letter-spacing:-.01em;opacity:.85}
+.eada{position:absolute;top:30px;right:40px;font:800 20px var(--fd);color:#FF7A1A;letter-spacing:-.03em}
+.eada sup{font-size:9px;vertical-align:super}
+.stp{position:absolute;top:34px;right:120px;display:flex;gap:8px}
+.stp span{font:700 11px var(--fb);letter-spacing:.08em;padding:6px 12px;border-radius:99px;border:1.5px solid var(--blue);color:var(--blue)}
+.stp span.on{background:var(--blue);color:#fff}
+.dark .stp span{border-color:#fff;color:#fff}.dark .stp span.on{background:#fff;color:var(--ink)}
+
+.kicker{font:700 13px var(--fb);letter-spacing:.14em;text-transform:uppercase;color:var(--blue)}
+.dark .kicker,.blue .kicker{color:var(--lime)}
+.title{font-size:64px;font-weight:800;line-height:1;text-transform:uppercase;margin-top:28px}
+.sub{font-size:20px;color:var(--muted);margin-top:14px;max-width:1100px;line-height:1.4}
+.dark .sub,.blue .sub{color:rgba(255,255,255,.7)}
+
+/* cards */
+.card{border-radius:18px;padding:26px 28px;position:relative}
+.c-blue{background:var(--blue);color:#fff}
+.c-ink{background:var(--ink);color:#fff}
+.c-lime{background:var(--lime);color:var(--ink)}
+.c-soft{background:var(--blue-soft);color:var(--ink)}
+.c-white{background:#fff;color:var(--ink);border:1px solid var(--line)}
+.c-glass{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:#fff;backdrop-filter:blur(6px)}
+.lbl{font:700 13px var(--fb);letter-spacing:.12em;text-transform:uppercase;opacity:.9}
+.big{font:800 72px/1 var(--fd);letter-spacing:-.04em}
+.mid{font:800 46px/1 var(--fd);letter-spacing:-.03em}
+.small{font-size:15px;line-height:1.45;opacity:.85}
+ul.clean{list-style:none}
+ul.clean li{font-size:16px;line-height:1.35;padding:7px 0;border-top:1px solid rgba(255,255,255,.18)}
+.c-white ul.clean li,.c-soft ul.clean li,.c-lime ul.clean li{border-top-color:var(--line)}
+.interactive{cursor:pointer;transition:transform .25s ease,box-shadow .25s ease,background .25s}
+.interactive:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(30,30,255,.22)}
+.hint{position:absolute;bottom:34px;left:88px;font:500 13px var(--fb);color:var(--muted);display:flex;align-items:center;gap:8px}
+.dark .hint,.blue .hint{color:rgba(255,255,255,.55)}
+.hint b{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 0 rgba(217,255,63,.7);animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(217,255,63,.7)}70%{box-shadow:0 0 0 10px rgba(217,255,63,0)}100%{box-shadow:0 0 0 0 rgba(217,255,63,0)}}
+
+/* abstract card art (no logos) */
+.cardart{position:absolute;width:380px;height:240px;border-radius:22px;box-shadow:0 30px 60px rgba(0,0,0,.45);overflow:hidden}
+.cardart::before{content:"";position:absolute;left:34px;top:84px;width:56px;height:42px;border-radius:8px;background:linear-gradient(135deg,#e9e3c9,#b9ad80)}
+.cardart::after{content:"•••• 2026";position:absolute;right:30px;bottom:26px;font:600 18px var(--fb);letter-spacing:.12em;color:rgba(255,255,255,.75)}
+.ca-1{background:linear-gradient(135deg,#1E1EFF,#7A3CFF 60%,#FF3CA6)}
+.ca-2{background:linear-gradient(135deg,#2a2a33,#0b0b0f)}
+.ca-3{background:linear-gradient(135deg,#c9c9d2,#7c7c88)}
+.float{animation:float 6s ease-in-out infinite}
+@keyframes float{0%,100%{translate:0 0}50%{translate:0 -14px}}
+
+/* ---------- UI chrome ---------- */
+#progress{position:fixed;left:0;top:0;height:4px;background:var(--lime);width:0;transition:width .4s ease;z-index:20}
+#hud{position:fixed;bottom:18px;right:22px;display:flex;gap:8px;align-items:center;z-index:20;font:600 13px var(--fb);color:#fff}
+#hud button{background:rgba(20,20,26,.75);color:#fff;border:1px solid rgba(255,255,255,.18);border-radius:10px;height:36px;min-width:36px;padding:0 12px;font:600 13px var(--fb);cursor:pointer;backdrop-filter:blur(8px)}
+#hud button:hover{background:rgba(255,255,255,.2)}
+#counter{padding:0 12px;height:36px;line-height:36px;border-radius:10px;background:rgba(20,20,26,.75);font-variant-numeric:tabular-nums}
+#help{position:fixed;bottom:18px;left:22px;z-index:20;font:500 12px var(--fb);color:rgba(255,255,255,.45)}
+#help kbd{font:600 11px var(--fb);border:1px solid rgba(255,255,255,.25);border-radius:5px;padding:1px 6px;margin:0 2px}
+
+#notes{position:fixed;left:50%;bottom:66px;transform:translate(-50%,20px);width:min(980px,92vw);background:rgba(15,15,20,.94);color:#eee;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:20px 24px;font:400 16px/1.55 var(--fb);z-index:30;opacity:0;pointer-events:none;transition:.3s;backdrop-filter:blur(10px);max-height:40vh;overflow:auto}
+#notes.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+#notes h5{font:700 11px var(--fb);letter-spacing:.14em;color:var(--lime);margin-bottom:8px;text-transform:uppercase}
+
+#overview{position:fixed;inset:0;background:rgba(5,5,7,.96);z-index:40;display:none;overflow:auto;padding:50px}
+#overview.show{display:block}
+#overview h3{color:#fff;font-size:22px;margin-bottom:24px}
+#ovgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+.ov{background:#15151c;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:16px;color:#fff;cursor:pointer;transition:.2s}
+.ov:hover,.ov.cur{border-color:var(--lime);transform:translateY(-3px)}
+.ov small{font:700 11px var(--fb);color:var(--lime);letter-spacing:.1em}
+.ov div{font:700 17px var(--fd);margin-top:6px;text-transform:uppercase}
+
+/* ---------- Slide specifics ---------- */
+/* Title */
+.s-title{background:radial-gradient(1200px 700px at 85% 40%,#3a1cff 0%,#1E1EFF 35%,#0b0b3a 75%,#05051a 100%);color:#fff}
+.s-title .t-rev{font:900 170px/0.9 var(--fd);letter-spacing:-.06em;margin-top:150px}
+.s-title .t-sub{font:800 64px/1 var(--fd);letter-spacing:-.03em;text-transform:uppercase;margin-top:18px}
+.pill{display:inline-flex;align-items:center;gap:10px;background:#fff;color:var(--ink);border-radius:99px;padding:12px 22px;font:600 16px var(--fb)}
+.chip{display:inline-block;background:var(--lime);color:var(--ink);border-radius:99px;padding:6px 14px;font:700 13px var(--fb);letter-spacing:.06em}
+
+/* roadmap */
+.road{display:grid;grid-template-columns:1fr 1fr;gap:18px 40px;margin-top:70px;max-width:1100px}
+.road .item{display:flex;align-items:center;gap:22px;padding:22px 26px;border-radius:16px;background:#fff;color:var(--ink);cursor:pointer;transition:.25s}
+.road .item:hover{background:var(--lime);transform:translateX(8px)}
+.road .num{font:800 26px var(--fd);width:56px;height:56px;border-radius:12px;background:var(--ink);color:#fff;display:grid;place-items:center}
+.road .nm{font:700 24px var(--fd);text-transform:uppercase;letter-spacing:-.01em}
+
+/* tabs/columns */
+.cols{display:grid;gap:18px}
+.c5{grid-template-columns:repeat(5,1fr)}
+.c4{grid-template-columns:repeat(4,1fr)}
+.c3{grid-template-columns:repeat(3,1fr)}
+.c2{grid-template-columns:repeat(2,1fr)}
+
+/* 5Cs revolut */
+.fivec .card{height:520px;display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden}
+.fivec .card .big{margin-top:30px;font-size:68px}
+.fivec .card .what{font-size:16px;opacity:.85;margin-top:6px}
+.fivec .card ul{margin-top:auto}
+.fivec .card.dim{opacity:.45}
+.fivec .card.focus{transform:translateY(-10px);box-shadow:0 26px 50px rgba(30,30,255,.35)}
+
+/* SWOT */
+.swot{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:18px;height:620px;margin-top:34px}
+.swot .card{display:grid;grid-template-columns:230px 1fr;gap:20px;align-items:center;overflow:hidden}
+.swot .card .head{grid-column:1/3;align-self:start}
+.swot .card .kw{font-size:13px;opacity:.75;margin-top:4px}
+.swot .card .big{font-size:86px}
+.swot .card .cap{font-size:13px;opacity:.7;margin-top:8px}
+.swot .card.zoom{z-index:2}
+
+/* Ansoff */
+.ansoff-wrap{display:grid;grid-template-columns:60px 1fr;grid-template-rows:1fr 50px;gap:12px;margin-top:30px;height:610px}
+.ansoff{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:16px}
+.axis-y{writing-mode:vertical-rl;transform:rotate(180deg);display:flex;justify-content:space-around;font:700 13px var(--fb);letter-spacing:.12em;color:var(--muted)}
+.axis-x{grid-column:2;display:flex;justify-content:space-around;font:700 13px var(--fb);letter-spacing:.12em;color:var(--muted);align-items:center}
+.ansoff .card{display:grid;grid-template-columns:240px 1fr;align-items:center;gap:20px}
+.ansoff .card .head{grid-column:1/3;align-self:start;display:flex;justify-content:space-between;align-items:center}
+.risk{font:700 11px var(--fb);letter-spacing:.1em;padding:5px 10px;border-radius:99px}
+.r-low{background:var(--lime);color:var(--ink)}.r-med{background:#fff;color:var(--blue)}.r-mh{background:#FFB23F;color:var(--ink)}.r-high{background:var(--pink);color:#fff}
+.riskbar{position:absolute;right:88px;top:178px;width:330px}
+.riskbar .bar{height:10px;border-radius:99px;background:linear-gradient(90deg,var(--lime),#FFB23F,var(--pink))}
+.riskbar .l{display:flex;justify-content:space-between;font:600 12px var(--fb);color:var(--muted);margin-top:6px}
+
+/* Consumer journey */
+.journey{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:40px;position:relative}
+.step{border-radius:16px;padding:20px;background:var(--blue-soft);cursor:pointer;transition:.3s;min-height:200px;display:flex;flex-direction:column}
+.step .n{font:800 14px var(--fd);color:var(--blue)}
+.step .nm{font:700 20px/1.15 var(--fd);margin-top:8px}
+.step .stat{font:800 42px/1 var(--fd);margin-top:auto;letter-spacing:-.03em;opacity:0;transform:translateY(10px);transition:.4s}
+.step .cap{font-size:14px;opacity:0;transition:.4s .05s;margin-top:6px}
+.step.on{background:var(--blue);color:#fff}
+.step.on .n{color:var(--lime)}
+.step.on .stat,.step.on .cap{opacity:1;transform:none}
+.journey .arrow{position:absolute;top:50%;width:14px;height:14px;border-top:3px solid var(--blue);border-right:3px solid var(--blue);transform:rotate(45deg)}
+.infl{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:22px}
+.infl .card{padding:18px 22px}
+.infl .card .v{font:700 22px var(--fd);margin-top:8px}
+.pv{margin-top:22px;display:flex;align-items:center;gap:30px;background:var(--ink);color:#fff;border-radius:18px;padding:24px 32px}
+.pv .eq{font:800 34px var(--fd);letter-spacing:-.02em}
+.pv .eq em{font-style:normal;color:var(--lime)}
+
+/* theory slides */
+.theory-grid{margin-top:56px}
+.theory-grid .card{min-height:250px}
+.theory-grid h4{font-size:24px;text-transform:uppercase;margin-top:10px}
+.theory-grid p{font-size:16px;line-height:1.45;margin-top:10px;opacity:.85}
+.ansT .card{min-height:270px;display:flex;flex-direction:column;justify-content:center}
+.ansT .card p{font-size:24px!important}
+.segT .card{min-height:330px}
+.segT .card .small{font-size:17px}
+.def{font:600 34px/1.25 var(--fd);max-width:1000px;margin-top:30px;letter-spacing:-.02em}
+
+/* segmentation */
+.seg .card{height:590px;display:flex;flex-direction:column}
+.seg .big{margin-top:24px;font-size:70px}
+.seg .cap{font-size:16px;margin-top:4px;opacity:.85}
+.seg ul{margin-top:auto}
+
+/* targeting rings */
+.rings{position:absolute;left:120px;top:250px;width:520px;height:520px}
+.ring{position:absolute;border-radius:50%;display:flex;justify-content:center;cursor:pointer;transition:.3s;font:800 15px var(--fb);letter-spacing:.12em}
+.ring.r3{inset:0;background:#DCDCFF;color:var(--blue);padding-top:30px}
+.ring.r2{inset:85px;background:#9E9EFF;color:#fff;padding-top:28px}
+.ring.r1{inset:175px;background:var(--blue);color:#fff;align-items:center}
+.ring.sel{box-shadow:0 0 0 6px var(--lime)}
+.ring:hover{filter:brightness(1.06)}
+.tgt-list{position:absolute;left:720px;top:240px;width:780px;display:flex;flex-direction:column;gap:16px}
+.tgt{display:grid;grid-template-columns:24px 1fr;gap:18px;padding:20px 24px;border-radius:16px;transition:.3s;cursor:pointer;border:1.5px solid transparent}
+.tgt .dot{width:20px;height:20px;border-radius:50%;margin-top:6px}
+.tgt h4{font-size:24px}
+.tgt p{font-size:15px;color:var(--muted);margin-top:4px;line-height:1.45}
+.tgt.sel{background:var(--blue-soft);border-color:var(--blue)}
+.strat{position:absolute;left:88px;right:88px;bottom:60px;background:var(--ink);color:#fff;border-radius:14px;padding:16px 24px;display:flex;gap:20px;align-items:center;font-size:17px}
+
+/* perceptual map */
+.pmap{position:absolute;left:88px;top:220px;width:900px;height:620px}
+.pmap .axh{position:absolute;left:0;right:0;top:50%;height:2px;background:var(--ink)}
+.pmap .axv{position:absolute;top:0;bottom:0;left:50%;width:2px;background:var(--ink)}
+.pmap .al{position:absolute;font:800 13px var(--fb);letter-spacing:.14em;background:#fff;padding:4px 8px}
+.brandpt{position:absolute;transform:translate(-50%,-50%);cursor:pointer;text-align:center;transition:.3s}
+.brandpt .b{border-radius:50%;margin:0 auto;transition:.3s}
+.brandpt .n{font:700 17px var(--fd);margin-top:8px;white-space:nowrap}
+.brandpt .d{font-size:13px;color:var(--muted);white-space:nowrap}
+.brandpt:hover .b{transform:scale(1.15)}
+.brandpt.rev .b{width:90px;height:90px;background:var(--blue);box-shadow:0 0 0 0 rgba(30,30,255,.5);animation:ripple 2.4s infinite}
+@keyframes ripple{0%{box-shadow:0 0 0 0 rgba(30,30,255,.45)}80%{box-shadow:0 0 0 40px rgba(30,30,255,0)}100%{box-shadow:0 0 0 0 rgba(30,30,255,0)}}
+.brandpt .b.o{width:48px;height:48px;background:#B9B9C6}
+.zone{position:absolute;right:0;top:0;width:50%;height:50%;background:rgba(217,255,63,.25);border-radius:0 0 0 60px}
+.pside{position:absolute;right:88px;top:220px;width:470px;display:flex;flex-direction:column;gap:16px}
+.pside .card h4{font-size:15px;letter-spacing:.1em;text-transform:uppercase}
+.pside .card p{font-size:16px;line-height:1.5;margin-top:8px}
+#ptip{min-height:90px}
+
+/* positioning statement */
+.psf{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-top:60px}
+.psf .card{text-align:center;padding:40px 18px;min-height:420px;cursor:pointer;transition:.3s}
+.psf .card .w{font:900 54px/1 var(--fd)}
+.psf .card .s{font-size:14px;opacity:.7;margin-top:8px}
+.psf .card .q{font:600 16px var(--fb);margin-top:26px}
+.psf .card .ans{font-size:17px;line-height:1.4;margin-top:14px;max-height:0;overflow:hidden;opacity:0;transition:.45s}
+.psf .card.open{background:var(--blue);color:#fff}
+.psf .card.open .ans{max-height:200px;opacity:1}
+.psf .card.open .w{color:var(--lime)}
+.why{margin:40px auto 0;width:max-content;background:var(--ink);color:#fff;border-radius:99px;padding:18px 40px;font:800 20px var(--fd);letter-spacing:.04em}
+.why em{font-style:normal;color:var(--lime)}
+
+.stmt{font:500 46px/1.35 var(--fd);letter-spacing:-.02em;max-width:1300px;margin-top:40px}
+.stmt .k{font-weight:900;color:var(--lime)}
+.stmt .seg{opacity:.18;transition:opacity .6s}
+.stmt .seg.lit{opacity:1}
+
+/* team */
+.team{margin-top:60px;display:flex;flex-direction:column;gap:14px}
+.team .m{font:800 40px/1 var(--fd);text-transform:uppercase;letter-spacing:-.02em;display:flex;align-items:center;gap:20px}
+.team .m i{font-style:normal;font:700 13px var(--fb);letter-spacing:.1em;color:var(--lime);width:30px}
+
+/* quote */
+.quote{font:600 italic 40px/1.3 var(--fd);max-width:760px}
+.quote small{display:block;font:600 18px var(--fb);font-style:normal;margin-top:16px;color:var(--muted)}
+
+
+
+.seg2 .q2{display:flex;align-items:center;gap:8px;background:var(--blue-soft);border-radius:14px;padding:12px 14px;margin-bottom:10px;flex-wrap:wrap}
+.seg2 .qn{width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;display:grid;place-items:center;font:700 13px var(--fb)}
+.seg2 .qq{font:700 12px var(--fb);letter-spacing:.12em;text-transform:uppercase;color:var(--blue)}
+.seg2 .q2 b{width:100%;font:700 20px var(--fd);margin-top:4px}
+.seg2 .card{height:370px;display:flex;flex-direction:column}
+.seg2 .big{margin-top:10px;font-size:64px}
+.seg2 .cap{font-size:15px;margin-top:6px;opacity:.85}
+.seg2 ul{margin-top:auto}
+.persona{margin-top:18px;background:var(--ink);color:#fff;border-radius:18px;padding:20px 28px;display:grid;grid-template-columns:1.1fr 1fr;gap:30px;align-items:center}
+.persona .pp{border-left:2px solid var(--lime);padding-left:26px}
+
+/* ===== GRAPHICS ===== */
+.ic{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.cic{position:absolute;top:22px;right:22px;width:32px;height:32px;opacity:.95}
+.c-blue .cic,.c-ink .cic,.c-glass .cic{color:var(--lime)}
+.c-soft .cic,.c-white .cic,.c-lime .cic{color:var(--blue)}
+.swot .head{padding-right:46px}
+.rdic{width:30px;height:30px;margin-left:auto;color:var(--blue)}
+.road .item:hover .rdic{color:var(--ink)}
+.stat-row{display:flex;align-items:center;gap:18px;margin-top:20px}
+.sic{width:46px;height:46px;padding:10px;border-radius:12px;background:rgba(255,255,255,.14);color:var(--lime)}
+.tline{position:relative;display:flex;flex-direction:column;gap:30px;margin-top:20px;padding-left:4px}
+.tline::before{content:"";position:absolute;left:26px;top:20px;bottom:30px;width:2px;background:linear-gradient(var(--lime),rgba(217,255,63,.15))}
+.tl{display:flex;gap:20px;align-items:center;position:relative}
+.tlic{width:46px;height:46px;padding:11px;border-radius:50%;background:var(--ink);border:2px solid var(--lime);color:var(--lime)}
+.globe-art{position:relative;width:200px;height:200px;margin:4px 0 0 auto;color:var(--ink)}
+.gbig{width:200px;height:200px;stroke-width:.9;opacity:.85}
+.gdot{position:absolute;width:12px;height:12px;border-radius:50%;background:var(--blue);box-shadow:0 0 0 5px rgba(30,30,255,.18)}
+.donut{position:relative;flex:none}
+.donut svg{width:100%;height:100%;display:block}
+.dlabel{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:800 44px var(--fd);letter-spacing:-.03em}
+.pips{display:flex;gap:7px;margin-top:14px}.pips i{width:22px;height:8px;border-radius:99px;background:var(--lime)}
+.dots34{display:grid;grid-template-columns:repeat(9,9px);gap:6px;margin-top:14px}.dots34 i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.85)}
+.mini{width:26px;height:26px}
+.stic{position:absolute;top:18px;right:18px;width:26px;height:26px;color:var(--blue);transition:color .3s}
+.step{position:relative}.step.on .stic{color:var(--lime)}
+.journey .step:not(:last-child)::after{content:"";position:absolute;right:-12px;top:50%;width:10px;height:10px;border-top:2.5px solid var(--blue);border-right:2.5px solid var(--blue);transform:translateY(-50%) rotate(45deg);z-index:2}
+.infl-c{display:flex;gap:14px;align-items:center}
+.inic{width:42px;height:42px;padding:9px;border-radius:12px;background:#fff;color:var(--blue)}
+.chk{width:22px;height:22px;color:var(--blue)}
+.dot2{width:44px;height:44px;border-radius:50%;display:grid;place-items:center}
+.tgt{grid-template-columns:44px 1fr!important}
+.dic{width:22px;height:22px}
+.twotypes{display:flex;align-items:center;gap:10px;margin-top:auto}
+.twotypes span{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;background:rgba(255,255,255,.14);color:#fff}
+.twotypes span.pri{background:var(--lime);color:var(--ink)}
+.twotypes .vs{background:none!important;width:auto;font:800 16px var(--fd);color:rgba(255,255,255,.7)}
+.tt{width:26px;height:26px}
+.arr{position:relative;overflow:visible}
+.arr::before{content:"";position:absolute;right:-17px;top:50%;width:12px;height:12px;border-top:3px solid var(--blue);border-right:3px solid var(--blue);transform:translateY(-50%) rotate(45deg)}
+#psf .card{position:relative;overflow:visible}
+#psf .card:not(:last-child)::before{content:"";position:absolute;right:-15px;top:62px;width:11px;height:11px;border-top:3px solid var(--blue);border-right:3px solid var(--blue);transform:rotate(45deg);z-index:2}
+.av{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font:800 17px var(--fd);letter-spacing:0;background:linear-gradient(135deg,var(--blue),var(--violet));color:#fff;flex:none}
+.team .m:nth-child(2) .av{background:linear-gradient(135deg,var(--violet),var(--pink))}
+.team .m:nth-child(3) .av{background:var(--lime);color:var(--ink)}
+.team .m:nth-child(4) .av{background:linear-gradient(135deg,#3A3AFF,#00C2FF)}
+.team .m:nth-child(5) .av{background:#fff;color:var(--ink)}
+.team{gap:16px!important}
+.swot-tiles{position:absolute;right:110px;top:380px;display:grid;grid-template-columns:200px 200px;gap:14px;rotate:-4deg}
+.swot-tiles .t{height:170px;border-radius:20px;padding:18px 20px;display:flex;flex-direction:column;justify-content:space-between;position:relative}
+.swot-tiles b{font:900 76px/1 var(--fd)}
+.swot-tiles span{font:700 15px var(--fb)}
+.swot-tiles em{position:absolute;top:20px;right:18px;font:700 10px var(--fb);letter-spacing:.12em;text-transform:uppercase;font-style:normal;opacity:.7}
+.swot-tiles .s1{background:var(--blue);color:#fff}.swot-tiles .s2{background:#fff;color:var(--ink)}
+.swot-tiles .s3{background:var(--lime);color:var(--ink)}.swot-tiles .s4{background:#2a2a33;color:#fff;border:1px solid rgba(255,255,255,.15)}
+
+/* bigger box titles */
+.card .lbl{font:800 21px/1.1 var(--fd);letter-spacing:.02em}
+.swot .head .lbl{font-size:24px}
+.ansoff .head .lbl{font-size:22px}
+.ansT .card .lbl{font-size:30px;letter-spacing:0}
+.fivec .card .lbl{font-size:17px;padding-right:36px}
+.pside .card h4{font-size:19px!important;letter-spacing:.02em!important}
+.infl .card .lbl{font-size:15px!important}
+.seg .card .lbl{font-size:19px}
+.fivec .card .big{margin-top:24px}
+/* ===== DYNAMIC LAYER ===== */
+.slide{isolation:isolate;transform:translateX(90px) scale(.985);transition:opacity .6s ease,visibility .6s,transform .8s cubic-bezier(.16,.84,.24,1)}
+.slide.active{transform:none}
+.slide.past{transform:translateX(-90px) scale(.985)}
+/* animated background blobs */
+.slide.dark::before,.s-title::before{content:"";position:absolute;inset:-30%;z-index:-1;pointer-events:none;
+  background:radial-gradient(35% 35% at 20% 30%,rgba(30,30,255,.55),transparent 70%),radial-gradient(30% 30% at 80% 70%,rgba(122,60,255,.45),transparent 70%),radial-gradient(25% 25% at 60% 20%,rgba(255,60,166,.22),transparent 70%);
+  filter:blur(30px);animation:blobs 18s ease-in-out infinite alternate}
+.slide.dark::before{opacity:.55}
+@keyframes blobs{0%{transform:translate(0,0) rotate(0)}50%{transform:translate(6%,-4%) rotate(20deg)}100%{transform:translate(-5%,5%) rotate(-15deg)}}
+.slide.light::before,.slide.paper::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background-image:radial-gradient(rgba(30,30,255,.10) 1.2px,transparent 1.2px);background-size:28px 28px;
+  -webkit-mask-image:radial-gradient(60% 60% at 100% 0%,#000,transparent);mask-image:radial-gradient(60% 60% at 100% 0%,#000,transparent)}
+/* word / letter reveals */
+.w{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.06em;margin-bottom:-.06em}
+.w>span{display:inline-block;transform:translateY(110%);transition:transform .8s cubic-bezier(.16,.84,.24,1)}
+.slide.active .w>span{transform:none}
+/* card tilt + glare */
+.card,.road .item{transform-style:preserve-3d;will-change:transform}
+.card::after,.road .item::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .3s;
+  background:radial-gradient(320px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.22),transparent 60%)}
+.road .item{position:relative}
+.card:hover::after,.road .item:hover::after{opacity:1}
+.c-white::after,.c-soft::after,.c-lime::after{background:radial-gradient(320px circle at var(--mx,50%) var(--my,50%),rgba(30,30,255,.10),transparent 60%)}
+.tilting{transition:transform .12s ease-out!important}
+/* ticker */
+.ticker{position:absolute;left:0;right:0;bottom:0;height:62px;background:var(--lime);color:var(--ink);overflow:hidden;display:flex;align-items:center}
+.ticker .tk{display:flex;gap:46px;white-space:nowrap;animation:tick 28s linear infinite;font:800 22px var(--fd);letter-spacing:-.01em;padding-left:46px}
+.ticker .tk span::after{content:"✦";margin-left:46px;color:var(--blue)}
+@keyframes tick{to{transform:translateX(-50%)}}
+/* risk bar fill */
+.riskbar .bar{clip-path:inset(0 100% 0 0);transition:clip-path 1.4s cubic-bezier(.16,.84,.24,1) .5s}
+.slide.active .riskbar .bar{clip-path:inset(0 0 0 0)}
+/* rings pop */
+.ring{opacity:0;transform:scale(.5)}
+.slide.active .ring{opacity:1;transform:none;transition:opacity .6s,transform .9s cubic-bezier(.34,1.56,.64,1),box-shadow .3s,filter .3s}
+.slide.active .ring.r3{transition-delay:.15s}.slide.active .ring.r2{transition-delay:.35s}.slide.active .ring.r1{transition-delay:.55s}
+.slide.active .ring.sel{transition-delay:0s}
+.ring.r1::after{content:"";position:absolute;inset:-2px;border-radius:50%;border:2px solid var(--blue);animation:ringwave 2.6s ease-out infinite}
+@keyframes ringwave{0%{transform:scale(1);opacity:.8}100%{transform:scale(2.6);opacity:0}}
+/* perceptual map pop-in */
+.brandpt{opacity:0;scale:.3}
+.slide.active .brandpt{opacity:1;scale:1;transition:opacity .5s,scale .8s cubic-bezier(.34,1.56,.64,1)}
+.slide.active .brandpt:nth-of-type(1){transition-delay:.5s}.slide.active .brandpt:nth-of-type(2){transition-delay:.65s}
+.slide.active .brandpt:nth-of-type(3){transition-delay:.8s}.slide.active .brandpt:nth-of-type(4){transition-delay:.95s}
+.slide.active .brandpt:nth-of-type(5){transition-delay:1.1s}
+.slide.active .brandpt.rev{transition-delay:1.35s}
+.pmap .axh{transform:scaleX(0);transition:transform 1s cubic-bezier(.16,.84,.24,1) .2s}
+.pmap .axv{transform:scaleY(0);transition:transform 1s cubic-bezier(.16,.84,.24,1) .3s}
+.slide.active .pmap .axh,.slide.active .pmap .axv{transform:none}
+.zone{opacity:0;transition:opacity 1s 1.4s}.slide.active .zone{opacity:1}
+/* journey progress */
+.jbar{height:6px;border-radius:99px;background:var(--blue-soft);margin-top:14px;overflow:hidden}
+.jbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--violet));border-radius:inherit;transition:width .6s cubic-bezier(.16,.84,.24,1)}
+.step.on{animation:pop .5s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{0%{transform:scale(.94)}100%{transform:scale(1)}}
+.psf .card.open{animation:pop .5s cubic-bezier(.34,1.56,.64,1)}
+/* statement highlight sweep */
+.stmt .seg.lit .k{background:linear-gradient(transparent 62%,rgba(217,255,63,.25) 62%);}
+/* SWOT/5C big numbers subtle shimmer */
+.big{background-clip:text}
+/* team names slide in */
+.team .m{transition:transform .7s cubic-bezier(.16,.84,.24,1),opacity .6s,color .25s!important}
+.team .m:hover{color:var(--lime);transform:translateX(14px)!important}
+/* hud progress dots */
+#dots{position:fixed;left:50%;transform:translateX(-50%);bottom:28px;display:flex;gap:6px;z-index:20}
+#dots i{width:7px;height:7px;border-radius:99px;background:rgba(255,255,255,.28);cursor:pointer;transition:.35s}
+#dots i.on{width:26px;background:var(--lime)}
+@media (max-width:900px){#dots{display:none}}
+
+#hud,#dots,#help{transition:opacity .5s}
+body.idle #hud,body.idle #dots,body.idle #help{opacity:0;pointer-events:none}
+body.idle{cursor:none}
+@media (max-width:800px){#help{display:none}}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div id="viewport"><div id="stage">
+
+<!-- 1 TITLE -->
+<section class="slide s-title" data-title="Title" data-notes="Welcome everyone. Today we present our marketing analysis of Revolut for Marketing Management: Creating Sustainable Value with Dr. Giorgia Miotto. We'll move from the company's situation (5C's, SWOT, Ansoff) to how its customers decide, and finish with segmentation, targeting and positioning.">
+  <div class="eada">eada<sup>®</sup></div>
+  <div class="r" style="display:flex;gap:12px;align-items:center"><span class="chip">GROUP PRESENTATION</span><span class="chip" style="background:#fff">2026</span></div>
+  <div class="t-rev r d1">Revolut</div>
+  <div class="t-sub r d2">Marketing<br>Analysis</div>
+  <div class="r d3" style="margin-top:46px"><span class="pill">Professor: Dr. Giorgia Miotto</span></div>
+  <div class="cardart ca-3 float" style="right:150px;top:150px;rotate:-14deg;animation-delay:-2s"></div>
+  <div class="cardart ca-2 float" style="right:230px;top:330px;rotate:-6deg;animation-delay:-1s"></div>
+  <div class="cardart ca-1 float" style="right:110px;top:470px;rotate:8deg"></div>
+  <div class="ticker"><div class="tk"><span>68M customers</span><span>£4.5bn revenue</span><span>$75bn valuation</span><span>40+ countries</span><span>Founded in London 2015</span><span>UK Bank Licence 2026</span><span>US Bank Charter 2027</span><span>11 product lines</span><span>68M customers</span><span>£4.5bn revenue</span><span>$75bn valuation</span><span>40+ countries</span><span>Founded in London 2015</span><span>UK Bank Licence 2026</span><span>US Bank Charter 2027</span><span>11 product lines</span></div></div>
+</section>
+
+<!-- 2 ROADMAP -->
+<section class="slide dark" data-title="Roadmap" data-notes="Here's our roadmap: six frameworks. Each section starts with the theory, then applies it to Revolut. You can click any item to jump straight to it.">
+  <div class="eada">eada<sup>®</sup></div>
+    <h2 class="title r d1">Today's roadmap</h2>
+  <div class="road">
+    <div class="item r d2" data-goto="3"><div class="num">01</div><div class="nm">5 C's</div><svg class="ic rdic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/><path d="M3 17.5l9 5 9-5" opacity=".5"/></svg></div>
+    <div class="item r d3" data-goto="9"><div class="num">04</div><div class="nm">Consumer behavior</div><svg class="ic rdic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17" cy="9" r="2.8"/><path d="M16 14.2c3 .2 5.5 2.3 5.5 5.8"/></svg></div>
+    <div class="item r d4" data-goto="5"><div class="num">02</div><div class="nm">SWOT</div><svg class="ic rdic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg></div>
+    <div class="item r d5" data-goto="11"><div class="num">05</div><div class="nm">Segmenting and targeting</div><svg class="ic rdic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v9h9a9 9 0 1 1-9-9z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"/></svg></div>
+    <div class="item r d6" data-goto="7"><div class="num">03</div><div class="nm">Ansoff matrix</div><svg class="ic rdic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></div>
+    <div class="item r d7" data-goto="14"><div class="num">06</div><div class="nm">Positioning and statement</div><svg class="ic rdic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg></div>
+  </div>
+  <div class="hint"><b></b> Click a section to jump to it</div>
+</section>
+
+<!-- 3 MEET REVOLUT -->
+<section class="slide light" data-title="Meet Revolut" data-notes="Revolut started in London in 2015 as a prepaid travel card. Today it has 68 million customers, £4.5bn in revenue and a $75bn valuation. It became a global financial super-app operating in 40+ countries across Europe, Asia and the Americas. Key milestones ahead: a UK bank licence in 2026 and a US bank charter in 2027.">
+  <div class="eada">eada<sup>®</sup></div>
+  <div class="kicker r">Company overview</div>
+  <h2 class="title r d1">Meet Revolut</h2>
+  <div class="cols c3 r d2" style="margin-top:60px;grid-template-columns:1.2fr 1fr 1fr">
+    <div class="card c-blue" style="min-height:560px;display:flex;flex-direction:column;justify-content:center">
+      <div></div>
+      <div>
+        <div class="stat-row"><svg class="ic sic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17" cy="9" r="2.8"/><path d="M16 14.2c3 .2 5.5 2.3 5.5 5.8"/></svg><div><div class="mid"><span data-count="68">0</span>M</div><div class="small">Customers</div></div></div>
+        <div class="stat-row"><svg class="ic sic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15 8.5c-.6-1-1.7-1.5-3-1.5-1.9 0-3 1-3 2.3 0 3.2 6 1.8 6 5 0 1.4-1.3 2.4-3 2.4-1.4 0-2.6-.6-3.1-1.6M12 5.5v13"/></svg><div><div class="mid">£<span data-count="4.5" data-dec="1">0</span>bn</div><div class="small">Revenue</div></div></div>
+        <div class="stat-row"><svg class="ic sic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><div><div class="mid">$<span data-count="75">0</span>bn</div><div class="small">Valuation</div></div></div>
+      </div>
+    </div>
+    <div class="card c-ink" style="min-height:560px">
+      <div class="tline">
+        <div class="tl"><svg class="ic tlic" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg><div><div class="mid">2015</div><div class="small">Founded in London</div></div></div>
+        <div class="tl"><svg class="ic tlic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10l9-6 9 6M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 21h18"/></svg><div><div class="mid">2026</div><div class="small">UK Bank Licence</div></div></div>
+        <div class="tl"><svg class="ic tlic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10l9-6 9 6M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 21h18"/></svg><div><div class="mid">2027</div><div class="small">US Bank Charter</div></div></div>
+      </div>
+    </div>
+    <div class="card c-lime" style="min-height:560px;display:flex;flex-direction:column;justify-content:space-between">
+      <div class="globe-art"><svg class="ic gbig" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><span class="gdot" style="left:30%;top:34%"></span><span class="gdot" style="left:58%;top:28%"></span><span class="gdot" style="left:66%;top:56%"></span><span class="gdot" style="left:40%;top:66%"></span><span class="gdot" style="left:22%;top:52%"></span></div>
+      <div style="font:700 30px/1.25 var(--fd);letter-spacing:-.02em">From a prepaid travel card to a global financial super-app operating in <span style="background:var(--ink);color:var(--lime);padding:0 8px;border-radius:6px">40+ countries</span> across Europe, Asia, and the Americas.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 5Cs THEORY -->
+<section class="slide paper" data-title="The 5 C's" data-notes="The 5 C's is a framework to analyse the company and its environment before making marketing decisions: Company, Customer, Competitor, Collaborators and Climate. Climate is essentially the PESTEL forces the company cannot control.">
+  <div class="eada">eada<sup>®</sup></div>
+  <div class="kicker r">01 · Framework</div>
+  <h2 class="title r d1">The 5 C's</h2>
+  <p class="sub r d2">A framework to analyse the company and its environment before making marketing decisions.</p>
+  <div class="cols c3 theory-grid">
+    <div class="card c-blue r d3"><div class="lbl" style="color:var(--lime)">01</div><h4>Company</h4><p>The firm's own resources, skills, culture and goals, which show what it can realistically do.</p></div>
+    <div class="card c-blue r d4"><div class="lbl" style="color:var(--lime)">02</div><h4>Customer</h4><p>Who buys, what they need and how they decide, which shows where the value lies.</p></div>
+    <div class="card c-blue r d5"><div class="lbl" style="color:var(--lime)">03</div><h4>Competitor</h4><p>The direct, indirect and replacement rivals that compete for the same customer need.</p></div>
+  </div>
+  <div class="cols c2 r d6" style="margin:18px auto 0;max-width:960px">
+    <div class="card c-lime"><div class="lbl">04</div><h4 style="font-size:24px;text-transform:uppercase;margin-top:10px">Collaborators</h4><p style="font-size:16px;margin-top:10px">The partners, suppliers and distributors that help the company create and deliver value.</p></div>
+    <div class="card c-ink"><div class="lbl" style="color:var(--lime)">05</div><h4 style="font-size:24px;text-transform:uppercase;margin-top:10px">Climate</h4><p style="font-size:16px;margin-top:10px;opacity:.8">The macro-environmental forces (PESTEL) that the company cannot control.</p></div>
+  </div>
+</section>
+
+<!-- 5 5Cs REVOLUT -->
+<section class="slide light" data-title="Revolut: 5 C's" data-notes="Applied to Revolut. Company: 10,000+ employees, including 1,400+ engineers, 11 product lines and a 'New Bets' incubator. Customer: 68.3M customers, up 30%, attracted by no FX fees and one app for everything. Competitor: direct rivals Monzo and N26; indirect ones such as traditional banks and Wise; and replacements like PayPal. Collaborators: 5+ key partners: Visa, Mastercard, Lead Bank, Chubb and NVIDIA. Climate: about a third of staff work in compliance. Revolut must follow banking regulations and adapt to economic changes and new technologies, like AI and cryptocurrency.">
+  <div class="brand">Revolut</div><div class="eada">eada<sup>®</sup></div>
+  <h2 class="title r" style="margin-top:20px">Revolut: The 5 C's</h2>
+  <p class="sub r d1">How Revolut connects internal agility with a global partner network</p>
+  <div class="cols c5 fivec" style="margin-top:40px" id="fivec">
+    <div class="card c-blue interactive r d2"><div class="lbl" style="color:var(--lime)">Company</div><svg class="ic cic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="11" height="18" rx="1"/><path d="M15 9h5v12h-5M7.5 7h1M11 7h1M7.5 11h1M11 11h1M7.5 15h1M11 15h1M9 21v-3"/></svg><div class="big"><span data-count="10">0</span>K+</div><div class="what">Employees</div>
+      <ul class="clean"><li>1,400+ engineers</li><li>11 product lines</li><li>New Bets incubator</li></ul></div>
+    <div class="card c-blue interactive r d3"><div class="lbl" style="color:var(--lime)">Customer</div><svg class="ic cic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17" cy="9" r="2.8"/><path d="M16 14.2c3 .2 5.5 2.3 5.5 5.8"/></svg><div class="big"><span data-count="68.3" data-dec="1">0</span>M</div><div class="what">Customers, +30%</div>
+      <ul class="clean"><li>No FX fees</li><li>One app for everything</li></ul></div>
+    <div class="card c-blue interactive r d4"><div class="lbl" style="color:var(--lime)">Competitor</div><svg class="ic cic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg><div class="big"><span data-count="11">0</span></div><div class="what">Direct: Monzo, N26</div>
+      <ul class="clean"><li>Indirect: banks, Wise</li><li>Replacement: PayPal</li></ul></div>
+    <div class="card c-blue interactive r d5"><div class="lbl" style="color:var(--lime)">Collaborators</div><svg class="ic cic" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1.2 1.2"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2"/></svg><div class="big"><span data-count="5">0</span>+</div><div class="what">Key partners</div>
+      <ul class="clean"><li>Visa, Mastercard</li><li>Lead Bank, Chubb</li><li>NVIDIA</li></ul></div>
+    <div class="card c-ink interactive r d6"><div class="lbl" style="color:var(--lime)">Climate</div><svg class="ic cic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><div class="big">1/3</div><div class="what">Staff in compliance</div><div class="donut" style="margin-top:18px;width:92px;height:92px" style="width:92px;height:92px"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,.15)" stroke-width="12"/><circle cx="50" cy="50" r="40" fill="none" stroke="#D9FF3F" stroke-width="12" stroke-linecap="round" stroke-dasharray="83.7 251.3" transform="rotate(-90 50 50)"/></svg></div>
+      <ul class="clean"><li>must follow banking regulations</li><li>adapt to economic changes and new technologies (AI and cryptocurrency)</li></ul></div>
+  </div>
+  <div class="hint"><b></b> Click a column to spotlight it</div>
+</section>
+
+<!-- 6 SWOT THEORY -->
+<section class="slide dark" data-title="SWOT" data-notes="SWOT sets internal strengths and weaknesses against external opportunities and threats, to show the company's strategic position.">
+  <div class="eada">eada<sup>®</sup></div>
+  <div class="kicker r">02 · Framework</div>
+  <h2 class="title r d1" style="font-size:120px;margin-top:40px">SWOT</h2>
+  <p class="def r d2">A tool that sets internal <span style="color:var(--lime)">strengths</span> and <span style="color:var(--lime)">weaknesses</span> against external <span style="color:var(--lime)">opportunities</span> and <span style="color:var(--lime)">threats</span> to show the company's strategic position.</p>
+  <div class="swot-tiles r d3"><div class="t s1"><b>S</b><span>Strengths</span><em>Internal</em></div><div class="t s2"><b>W</b><span>Weaknesses</span><em>Internal</em></div><div class="t s3"><b>O</b><span>Opportunities</span><em>External</em></div><div class="t s4"><b>T</b><span>Threats</span><em>External</em></div></div>
+</section>
+
+<!-- 7 SWOT REVOLUT -->
+<section class="slide light" data-title="Revolut: SWOT" data-notes="Strengths: scale, profitability, diversified revenue and investor confidence — revenue grew 46% to £4.5bn, profit £1.7bn (+38%), 68.3M customers and 11 product lines. Weaknesses: service and trust (frozen accounts), dependence on fees, and volatile crypto and trading. Opportunities: 30 new markets by 2030 across America, Asia and the Middle East, an IPO around 2028, the UK banking licence and US bank charter. Threats: regulatory and compliance cost, credit losses as lending grows, and fraud and financial crime. In short: a strong growth engine, with trust and regulation as the key risks.">
+  <div class="brand">Revolut</div><div class="eada">eada<sup>®</sup></div>
+  <h2 class="title r" style="margin-top:20px">Revolut: SWOT</h2>
+  <p class="sub r d1">Strong growth engine, with trust and regulation as the key risks</p>
+  <div class="swot" id="swot">
+    <div class="card c-blue interactive r d2"><div class="head"><svg class="ic cic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><div class="lbl">Strengths</div><div class="kw">Scale · Profitability · Diversified revenue · Investor confidence</div></div>
+      <div><div class="big">+<span data-count="46">0</span>%</div><div class="cap">Growth from last year</div></div>
+      <ul class="clean"><li>Revenue growth to £4.5bn</li><li>Profit £1.7bn (+38%)</li><li>68.3M customers</li><li>11 product lines</li></ul></div>
+    <div class="card c-ink interactive r d3"><div class="head"><svg class="ic cic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M12 8v5M12 16v.01"/></svg><div class="lbl">Weaknesses</div><div class="kw">Service and trust · Fee dependence · Crypto and trading</div></div>
+      <div><div class="big">Trust</div></div>
+      <ul class="clean"><li>Frozen accounts and service</li><li>Dependence on fees</li><li>Volatile crypto and trading</li></ul></div>
+    <div class="card c-blue interactive r d4"><div class="head"><svg class="ic cic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><div class="lbl">Opportunities</div><div class="kw">Expansion into new markets · Talks of an IPO · UK bank</div></div>
+      <div><div class="big">+<span data-count="30">0</span></div><div class="cap">America · Asia · Middle East</div></div>
+      <ul class="clean"><li>New markets by 2030</li><li>IPO around 2028</li><li>UK banking licence</li><li>US bank charter</li></ul></div>
+    <div class="card c-ink interactive r d5"><div class="head"><svg class="ic cic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4.5M12 17.5v.01"/></svg><div class="lbl">Threats</div><div class="kw">Regulatory risk · Credit risk · Fraud &amp; financial crime</div></div>
+      <div><div class="big">Risk</div></div>
+      <ul class="clean"><li>Regulation and compliance cost</li><li>Credit losses as lending grows</li><li>Fraud and financial crime</li></ul></div>
+  </div>
+</section>
+
+<!-- 8 ANSOFF THEORY -->
+<section class="slide dark" data-title="Ansoff Matrix" data-notes="The Ansoff matrix maps four growth paths by product (existing vs new) and market (existing vs new). Market penetration is lowest risk; diversification — new products in new markets — is the highest risk, highest reward path.">
+  <div class="eada">eada<sup>®</sup></div>
+  <div class="kicker r">03 · Framework</div>
+  <h2 class="title r d1">Ansoff Matrix</h2>
+  <div class="cols c2 r d2 ansT" style="margin-top:50px;gap:18px">
+    <div class="card c-soft"><svg class="ic cic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5"/></svg><div class="lbl" style="color:var(--blue)">Market penetration</div><p style="font-size:19px;margin-top:12px;line-height:1.45">Existing products, existing markets. Grow share, increase usage, acquire competitors' customers.</p></div>
+    <div class="card c-soft"><svg class="ic cic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4z"/><path d="M3 7v10l9 4 9-4V7M12 11v10"/></svg><div class="lbl" style="color:var(--blue)">Product development</div><p style="font-size:19px;margin-top:12px;line-height:1.45">New products, existing markets. Innovate to meet current customers' evolving needs.</p></div>
+    <div class="card c-blue"><svg class="ic cic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><div class="lbl" style="color:var(--lime)">Market development</div><p style="font-size:19px;margin-top:12px;line-height:1.45">Existing products, new markets. Expand geographically or reach new customer segments.</p></div>
+    <div class="card c-glass"><svg class="ic cic" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg><div class="lbl" style="color:var(--lime)">Diversification</div><p style="font-size:19px;margin-top:12px;line-height:1.45">New products, new markets. Highest risk, highest reward growth path.</p></div>
+  </div>
+</section>
+
+<!-- 9 ANSOFF REVOLUT -->
+<section class="slide light" data-title="Revolut: Ansoff" data-notes="Market penetration (low risk): 63% of new customers come via referrals, subscriptions are up 68%, and the target is 100M customers. Product development (medium risk): 5 initiatives — UK credit cards planned, the full UK banking licence, wealth products and a French licence. Market development (medium-high): 34 licensed bank markets, Mexico, Australia, New Zealand, and 30 new markets by 2030. Diversification (high risk): a $500M US expansion budget, a US bank in 2027 plus stablecoins — notably, Monzo and N26 both left the US.">
+  <div class="brand">Revolut</div><div class="eada">eada<sup>®</sup></div>
+  <h2 class="title r" style="margin-top:20px">Revolut: Ansoff Matrix</h2>
+  <p class="sub r d1">Columns: existing → new products · Rows: existing → new markets · Risk rises towards the bottom right</p>
+  <div class="riskbar r d2"><div class="bar"></div><div class="l"><span>Low risk</span><span>High risk</span></div></div>
+  <div class="ansoff-wrap">
+    <div class="axis-y"><span>NEW MARKETS</span><span>EXISTING MARKETS</span></div>
+    <div class="ansoff">
+      <div class="card c-soft interactive r d2"><div class="head"><span class="lbl" style="color:var(--blue)">Market penetration</span><span class="risk r-low">LOW RISK</span></div>
+        <div class="donut" style="width:170px;height:170px"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(30,30,255,.12)" stroke-width="11"/><circle cx="50" cy="50" r="40" fill="none" stroke="#1E1EFF" stroke-width="11" stroke-linecap="round" stroke-dasharray="158.3 251.3" transform="rotate(-90 50 50)"/></svg><div class="dlabel" style="color:var(--blue)"><span data-count="63">0</span>%</div></div>
+        <ul class="clean" style="font-size:15px"><li>New customers via referrals</li><li>Subscriptions +68%</li><li>Target: 100M customers</li></ul></div>
+      <div class="card c-blue interactive r d3"><div class="head"><span class="lbl">Product development</span><span class="risk r-med">MEDIUM RISK</span></div>
+        <div><div class="big"><span data-count="5">0</span></div><div class="pips"><i></i><i></i><i></i><i></i><i></i></div></div>
+        <ul class="clean"><li>UK credit cards planned</li><li>Full UK banking licence</li><li>Wealth + French licence</li></ul></div>
+      <div class="card c-blue interactive r d4"><div class="head"><span class="lbl">Market development</span><span class="risk r-mh">MEDIUM-HIGH RISK</span></div>
+        <div><div class="big"><span data-count="34">0</span></div><div class="dots34"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+        <ul class="clean"><li>Licensed bank markets</li><li>Mexico, Australia, NZ</li><li>30 new markets by 2030</li></ul></div>
+      <div class="card c-ink interactive r d5"><div class="head"><span class="lbl">Diversification</span><span class="risk r-high">HIGH RISK</span></div>
+        <div><div class="big">$<span data-count="500">0</span>M</div><div style="display:flex;gap:10px;margin-top:14px;color:var(--lime)"><svg class="ic mini" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4M5 4h11l-2 4 2 4H5"/></svg><svg class="ic mini" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10l9-6 9 6M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 21h18"/></svg><svg class="ic mini" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15 8.5c-.6-1-1.7-1.5-3-1.5-1.9 0-3 1-3 2.3 0 3.2 6 1.8 6 5 0 1.4-1.3 2.4-3 2.4-1.4 0-2.6-.6-3.1-1.6M12 5.5v13"/></svg></div></div>
+        <ul class="clean"><li>US expansion budget</li><li>US bank 2027 + stablecoins</li><li>Monzo &amp; N26 left the US</li></ul></div>
+    </div>
+    <div class="axis-x"><span>EXISTING PRODUCTS</span><span>NEW PRODUCTS</span></div>
+  </div>
+</section>
+
+<!-- 10 CB THEORY -->
+<section class="slide dark" data-title="Consumer Behaviour" data-notes="Consumer behaviour is the study of how people, groups and organisations choose, buy, use and dispose of goods, services or ideas. On the next slide, we look at how this works for a Revolut customer.">
+  <div class="eada">eada<sup>®</sup></div>
+  <div class="kicker r">04 · Framework</div>
+  <h2 class="title r d1" style="font-size:110px;margin-top:40px">Consumer Behaviour</h2>
+  <p class="def r d2">The study of how people, groups, and organizations <span style="color:var(--lime)">choose</span>, <span style="color:var(--lime)">buy</span>, <span style="color:var(--lime)">use</span>, and <span style="color:var(--lime)">dispose</span> of goods, services, or ideas</p>
+  <div class="cardart ca-1 float" style="right:150px;top:470px;rotate:-12deg;width:420px;height:265px"></div>
+  <div class="cardart ca-2 float" style="right:300px;top:560px;rotate:8deg;animation-delay:-3s"></div>
+</section>
+
+<!-- 11 CB REVOLUT -->
+<section class="slide light" data-title="Revolut: Consumer Behaviour" data-notes="Here is how a typical Revolut customer decides. The need starts with fees when paying abroad. Customers search mainly through friends: 63% join via referrals. They compare Revolut with Monzo, Wise and banks. Opening an account takes about 5 minutes. Post-purchase, the goal is for their salary to land in Revolut, so it becomes their main account. Influences: a challenger mindset, friends and referrals, travel and living abroad, and the free plan plus RevPoints. Consumers choose the option with the highest perceived value, benefits divided by costs, and Revolut offers many benefits for low costs.">
+  <div class="brand">Revolut</div><div class="eada">eada<sup>®</sup></div>
+  <h2 class="title r" style="margin-top:20px">Consumer Behaviour</h2>
+  <p class="sub r d1">How consumers decide what to buy — and what shapes each decision.</p>
+  <div class="lbl r d2" style="margin-top:26px;color:var(--blue)">Consumer decision process</div>
+  <div class="journey r d2" id="journey" style="margin-top:12px">
+    <div class="step"><div class="n">01</div><svg class="ic stic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg><div class="nm">Need recognition</div><div class="stat">€→$</div><div class="cap">fees when abroad</div></div>
+    <div class="step"><div class="n">02</div><svg class="ic stic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><div class="nm">Information search</div><div class="stat">63%</div><div class="cap">join via referrals</div></div>
+    <div class="step"><div class="n">03</div><svg class="ic stic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M7 21h10M5 7h14M5 7l-3 7a3.5 3.5 0 0 0 6 0zM19 7l-3 7a3.5 3.5 0 0 0 6 0z"/></svg><div class="nm">Evaluation</div><div class="stat">VS</div><div class="cap">Monzo · Wise · banks</div></div>
+    <div class="step"><div class="n">04</div><svg class="ic stic" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg><div class="nm">Purchase</div><div class="stat">5 min</div><div class="cap">to open an account</div></div>
+    <div class="step"><div class="n">05</div><svg class="ic stic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M16 15h2M6 6V5a2 2 0 0 1 2-2h9"/></svg><div class="nm">Post-purchase</div><div class="stat">Salary</div><div class="cap">becomes main account</div></div>
+  </div>
+  <div class="jbar r d2"><i id="jfill"></i></div>
+  <div class="lbl r d3" style="margin-top:20px;color:var(--blue)">What influences them</div>
+  <div class="infl r d4">
+    <div class="card c-soft infl-c"><svg class="ic inic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg><div><div class="lbl" style="color:var(--blue);font-size:11px">Psychological</div><div class="v">Challenger mindset</div></div></div>
+    <div class="card c-soft infl-c"><svg class="ic inic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17" cy="9" r="2.8"/><path d="M16 14.2c3 .2 5.5 2.3 5.5 5.8"/></svg><div><div class="lbl" style="color:var(--blue);font-size:11px">Social</div><div class="v">Friends &amp; referrals</div></div></div>
+    <div class="card c-soft infl-c"><svg class="ic inic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 13.5l19-8-5 15-4-6z"/><path d="M12.5 14.5l9-9"/></svg><div><div class="lbl" style="color:var(--blue);font-size:11px">Situational</div><div class="v">Travel &amp; living abroad</div></div></div>
+    <div class="card c-soft infl-c"><svg class="ic inic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg><div><div class="lbl" style="color:var(--blue);font-size:11px">Marketing mix</div><div class="v">Free plan · RevPoints</div></div></div>
+  </div>
+  <div class="pv r d5" style="padding:20px 32px"><div><div class="eq" style="font-size:30px">Perceived value = <em>Benefits</em> ÷ Costs</div><div style="font-size:14px;opacity:.7;margin-top:4px">Consumers choose the option with the highest perceived value.</div></div><div style="margin-left:auto;border-left:2px solid var(--lime);padding-left:26px"><div class="lbl" style="color:var(--lime)">High perceived value</div><div style="font:700 22px var(--fd);margin-top:4px">Many benefits ÷ low costs</div></div></div>
+  <div class="hint"><b></b> Click or press ↓ to walk through each stage</div>
+</section>
+
+<!-- 12 SEGMENTATION -->
+<section class="slide light" data-title="Segmentation" data-notes="Segmentation divides a market into distinct groups of buyers with similar needs, characteristics or behaviour. We ask five questions. Where? Revolut is in 40+ countries, strongest in the UK, Spain, Ireland and Eastern Europe, in urban environments. Who? Over half its customers are under 35, through to the mass-affluent. Why? A global, mobile, international lifestyle: challengers who distrust banks. How? Two types: secondary vs primary users. What? Convenience: 5-minute onboarding, no FX fees, and cashback and discounts. Firms usually combine these variables to build richer, more actionable segments. This gives us our buyer persona: young, mobile, digital users who want borderless money.">
+  <div class="brand">Revolut</div><div class="stp"><span class="on">SEGMENTATION</span><span>TARGETING</span><span>POSITIONING</span></div><div class="eada">eada<sup>®</sup></div>
+  <div class="kicker r" style="margin-top:20px">05 · Framework</div>
+  <h2 class="title r d1" style="margin-top:14px">Segmentation</h2>
+  <p class="sub r d1">Dividing a market into distinct groups of buyers with similar needs, characteristics or behaviour.</p>
+  <div class="cols c5 seg2" style="margin-top:30px;gap:14px">
+    <div class="r d2"><div class="q2"><span class="qn">1</span><span class="qq">Where?</span><b>Geographic</b></div>
+      <div class="card c-blue interactive"><svg class="ic cic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3z"/></svg><div class="big"><span data-count="40">0</span>+</div><div class="cap">Countries</div><ul class="clean"><li>UK, Spain, Ireland, Eastern Europe</li><li>Urban environment</li></ul></div></div>
+    <div class="r d3"><div class="q2"><span class="qn">2</span><span class="qq">Who?</span><b>Demographic</b></div>
+      <div class="card c-blue interactive"><div class="big"><span data-count="50">0</span>%+</div><div class="cap">Under 35</div><div class="donut" style="margin-top:22px;width:96px;height:96px" style="width:96px;height:96px"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="12"/><circle cx="50" cy="50" r="40" fill="none" stroke="#D9FF3F" stroke-width="12" stroke-linecap="round" stroke-dasharray="125.7 251.3" transform="rotate(-90 50 50)"/></svg></div><ul class="clean"><li>mass-affluent</li></ul></div></div>
+    <div class="r d4"><div class="q2"><span class="qn">3</span><span class="qq">Why?</span><b>Psychographic</b></div>
+      <div class="card c-blue interactive"><svg class="ic cic" viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 13.5l19-8-5 15-4-6z"/><path d="M12.5 14.5l9-9"/></svg><div class="big" style="font-size:56px">Global</div><div class="cap">Mobile, international lifestyle</div><ul class="clean"><li>Challengers who distrust banks</li></ul></div></div>
+    <div class="r d5"><div class="q2"><span class="qn">4</span><span class="qq">How?</span><b>Behavioural</b></div>
+      <div class="card c-blue interactive"><svg class="ic cic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17" cy="9" r="2.8"/><path d="M16 14.2c3 .2 5.5 2.3 5.5 5.8"/></svg><div class="big" style="font-size:56px">2 types</div><div class="cap">Secondary vs primary users</div><div class="twotypes"><span><svg class="ic tt" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M11 18.5h2"/></svg></span><span class="vs">vs</span><span class="pri"><svg class="ic tt" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="14" rx="2"/><path d="M3 10h18M16 15h2M6 6V5a2 2 0 0 1 2-2h9"/></svg></span></div></div></div>
+    <div class="r d6"><div class="q2"><span class="qn">5</span><span class="qq">What?</span><b>Benefit</b></div>
+      <div class="card c-ink interactive"><svg class="ic cic" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg><div class="big" style="font-size:34px;letter-spacing:-.01em;margin-top:52px">CONVENIENCE</div><ul class="clean"><li>5min Onboarding</li><li>No FX fees</li><li>Cashback &amp; discounts</li></ul></div></div>
+  </div>
+  <div class="persona r d7">
+    <div><div style="font:700 19px var(--fd)">Firms usually <span style="color:var(--lime)">combine</span> variables to build richer, more actionable segments</div><div class="small" style="margin-top:4px">Goal: groups that are similar inside and clearly different from each other.</div></div>
+    <div class="pp"><div class="lbl" style="color:var(--lime)">Buyer persona</div><div style="font:700 19px var(--fd);margin-top:4px">Young, mobile, digital users who want borderless money</div></div>
+  </div>
+</section>
+
+<!-- 14 TARGETING THEORY -->
+<section class="slide paper" data-title="Targeting" data-notes="Targeting means evaluating each segment's attractiveness and choosing which to serve. Step one: is the segment worth it — identifiable, substantial, reachable, responsive and profitable? Step two: does it fit the company — attractiveness (opportunities vs threats) plus company fit (strengths vs weaknesses) gives the target market. Strategies range from undifferentiated mass marketing to differentiated, concentrated and micro-marketing.">
+  <div class="stp"><span>SEGMENTATION</span><span class="on">TARGETING</span><span>POSITIONING</span></div><div class="eada">eada<sup>®</sup></div>
+  <div class="kicker r">05 · Framework</div>
+  <h2 class="title r d1">Targeting</h2>
+  <p class="sub r d2">Evaluating each segment's attractiveness and choosing which one(s) to serve.</p>
+  <div style="display:grid;grid-template-columns:1.1fr 1fr;gap:40px;margin-top:34px">
+    <div class="r d3">
+      <div class="lbl" style="color:var(--blue)">Step 1 · Is the segment worth it?</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">
+        <div class="card c-white" style="padding:14px 20px;display:flex;gap:16px;align-items:center"><svg class="ic chk" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9.5"/></svg><b style="width:130px;font:700 18px var(--fd)">Identifiable</b><span class="small">Size, profile &amp; purchasing power can be measured</span></div>
+        <div class="card c-white" style="padding:14px 20px;display:flex;gap:16px;align-items:center"><svg class="ic chk" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9.5"/></svg><b style="width:130px;font:700 18px var(--fd)">Substantial</b><span class="small">Big enough to justify a tailored marketing programme</span></div>
+        <div class="card c-white" style="padding:14px 20px;display:flex;gap:16px;align-items:center"><svg class="ic chk" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9.5"/></svg><b style="width:130px;font:700 18px var(--fd)">Reachable</b><span class="small">Can be effectively reached and served</span></div>
+        <div class="card c-white" style="padding:14px 20px;display:flex;gap:16px;align-items:center"><svg class="ic chk" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9.5"/></svg><b style="width:130px;font:700 18px var(--fd)">Responsive</b><span class="small">Reacts differently to the marketing mix</span></div>
+        <div class="card c-white" style="padding:14px 20px;display:flex;gap:16px;align-items:center"><svg class="ic chk" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.8 2.8L16.5 9.5"/></svg><b style="width:130px;font:700 18px var(--fd)">Profitable</b><span class="small">Generates sustainable profits over time</span></div>
+      </div>
+    </div>
+    <div class="r d4">
+      <div class="lbl" style="color:var(--blue)">Step 2 · Does it fit the company?</div>
+      <div style="display:grid;grid-template-columns:1fr 40px 1fr;align-items:center;margin-top:14px">
+        <div class="card c-blue" style="padding:18px"><b>Attractiveness</b><div class="small" style="margin-top:4px">Opportunities vs Threats</div><div class="small" style="margin-top:10px">Segment size &amp; growth<br>Competitive intensity<br>Market trends</div></div>
+        <div style="text-align:center;font:800 30px var(--fd);color:var(--blue)">+</div>
+        <div class="card c-blue" style="padding:18px"><b>Company fit</b><div class="small" style="margin-top:4px">Strengths vs Weaknesses</div><div class="small" style="margin-top:10px">Company objectives<br>Skills &amp; capabilities<br>Available resources</div></div>
+      </div>
+      <div style="text-align:center;font-size:26px;color:var(--blue);margin:10px 0">▼</div>
+      <div style="margin:0 auto;width:150px;height:150px;border-radius:50%;background:var(--ink);color:var(--lime);display:grid;place-items:center;text-align:center;font:800 18px var(--fd);letter-spacing:.06em">TARGET<br>MARKET</div>
+    </div>
+  </div>
+  <div class="strat r d5" style="bottom:50px"><span class="chip">STRATEGIES</span> Undifferentiated (mass) · Differentiated (several segments) · Concentrated (one niche) · Micro-marketing</div>
+</section>
+
+<!-- 15 TARGET MARKET -->
+<section class="slide light" data-title="Target Market" data-notes="Revolut uses a differentiated strategy, growing outwards from a digital-native core. The core is digital natives: over half under 35, Gen Z and Millennials in big cities — young professionals, students, travellers and expats who value multi-currency accounts and low FX fees. The growth ring is SMBs, startups and freelancers with cross-border payments, plus upmarket individuals moving to Metal and Ultra plans and investing. The expansion ring is institutional clients with a dedicated sales team, and new regions: UK, Spain, Portugal, Argentina, India, Latin America, the US and emerging markets — 30 new markets by 2030.">
+  <div class="brand">Revolut</div><div class="stp"><span>SEGMENTATION</span><span class="on">TARGETING</span><span>POSITIONING</span></div><div class="eada">eada<sup>®</sup></div>
+  <h2 class="title r" style="margin-top:20px">Target Market</h2>
+  <p class="sub r d1">A differentiated strategy, growing outwards from a digital-native core</p>
+  <div class="rings r d2" id="rings">
+    <div class="ring r3" data-t="2">EXPANSION</div>
+    <div class="ring r2" data-t="1">GROWTH</div>
+    <div class="ring r1 sel" data-t="0">CORE</div>
+  </div>
+  <div class="tgt-list" id="tgts">
+    <div class="tgt sel r d3" data-t="0"><div class="dot2" style="background:var(--blue);color:#fff"><svg class="ic dic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17" cy="9" r="2.8"/><path d="M16 14.2c3 .2 5.5 2.3 5.5 5.8"/></svg></div><div><h4>Digital natives</h4><p>50%+ under 35 · Gen Z &amp; Millennials in big cities<br>Young professionals, students, travellers, expats<br>Value multi-currency accounts &amp; low FX fees</p></div></div>
+    <div class="tgt r d4" data-t="1"><div class="dot2" style="background:#9E9EFF;color:#fff"><svg class="ic dic" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M3 12.5h18"/></svg></div><div><h4>SMBs &amp; freelancers</h4><p>SMBs, startups &amp; freelancers with cross-border payments<br>e.g. gaming tech, robotics and fintech founders<br>Upmarket individuals → Metal &amp; Ultra plans, investing</p></div></div>
+    <div class="tgt r d5" data-t="2"><div class="dot2" style="background:#DCDCFF;color:var(--blue)"><svg class="ic dic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10l9-6 9 6M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 21h18"/></svg></div><div><h4>Institutions &amp; new regions</h4><p>Institutional clients with a dedicated sales team<br>UK · Spain · Portugal · Argentina · India<br>Latin America, US &amp; emerging markets: 30 new by 2030</p></div></div>
+  </div>
+  <div class="strat r d6"><span class="chip">STRATEGY</span> <b>Differentiated:</b> one app, tailored plans per segment</div>
+</section>
+
+<!-- 16 POSITIONING THEORY -->
+<section class="slide light" data-title="Positioning" data-notes="Positioning is deciding how the organisation wants the market to think about its products or brand. As Al Ries and Jack Trout put it, positioning is what you do to the mind of the customer.">
+  <div class="stp"><span>SEGMENTATION</span><span>TARGETING</span><span class="on">POSITIONING</span></div><div class="eada">eada<sup>®</sup></div>
+  <div class="kicker r">06 · Framework</div>
+  <h2 class="title r d1" style="font-size:110px;margin-top:40px">Positioning</h2>
+  <p class="def r d2" style="max-width:860px">Positioning consists in deciding on how does the organization wants the market to think about its products/brand.</p>
+  <div class="quote r d3" style="position:absolute;right:110px;bottom:150px;max-width:620px">“Positioning is what you do to the mind of the customer.”<small>— Al Ries &amp; Jack Trout</small></div>
+  <div class="cardart ca-2 float" style="left:110px;bottom:-60px;rotate:-12deg"></div>
+  <div class="cardart ca-3 float" style="left:420px;bottom:-90px;rotate:10deg;animation-delay:-2s"></div>
+</section>
+
+<!-- 17 HOW TO POSITION -->
+<section class="slide paper" data-title="How to Position" data-notes="Positioning is expressed through all 4Ps: product, price (the money, time and energy the buyer gives up), place (more or less exclusivity) and promotion. There are three steps: define the value proposition, communicate it to the target, and deliver what you promised. The value proposition can be quantitative, qualitative, tangible or intangible — and ideally connected to a brand purpose: the reason a brand exists beyond profit.">
+  <div class="stp"><span>SEGMENTATION</span><span>TARGETING</span><span class="on">POSITIONING</span></div><div class="eada">eada<sup>®</sup></div>
+  <h2 class="title r" style="margin-top:20px">How to position</h2>
+  <div class="card c-lime r d1" style="margin-top:26px;font-size:18px;line-height:1.45">Positioning through the 4Ps: <b>product</b>, <b>price</b> (money, time, energy the buyer gives up), <b>place</b> (more or less exclusivity) and <b>promotion</b> all have to express the same position.</div>
+  <div class="lbl r d2" style="margin-top:30px;color:var(--blue)">3 steps to position a brand</div>
+  <div class="cols c3 r d3" style="margin-top:12px">
+    <div class="card c-blue arr"><svg class="ic cic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20l4-1 11-11-3-3L5 16z"/><path d="M14 6l3 3"/></svg><div class="mid" style="color:var(--lime)">01</div><h4 style="font-size:26px;margin-top:10px">DEFINE</h4><div class="small" style="margin-top:6px">the value proposition you want to offer</div></div>
+    <div class="card c-blue arr"><svg class="ic cic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10v4h4l9 5V5L7 10z"/><path d="M19 9a4 4 0 0 1 0 6"/></svg><div class="mid" style="color:var(--lime)">02</div><h4 style="font-size:26px;margin-top:10px">COMMUNICATE</h4><div class="small" style="margin-top:6px">your value proposition to the target</div></div>
+    <div class="card c-ink"><svg class="ic cic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4z"/><path d="M3 7v10l9 4 9-4V7M12 11v10"/></svg><div class="mid" style="color:var(--lime)">03</div><h4 style="font-size:26px;margin-top:10px">DELIVER</h4><div class="small" style="margin-top:6px">the value proposition you promised</div></div>
+  </div>
+  <div class="lbl r d4" style="margin-top:30px;color:var(--blue)">The value proposition can be</div>
+  <div class="cols r d5" style="grid-template-columns:repeat(4,1fr) 1.6fr;margin-top:12px;gap:12px">
+    <div class="card c-white" style="padding:18px"><b>Quantitative</b><div class="small">Price, fast service</div></div>
+    <div class="card c-white" style="padding:18px"><b>Qualitative</b><div class="small">The experience</div></div>
+    <div class="card c-white" style="padding:18px"><b>Tangible</b><div class="small">Product features</div></div>
+    <div class="card c-white" style="padding:18px"><b>Intangible</b><div class="small">Love brands</div></div>
+    <div class="card c-blue" style="padding:18px"><b style="color:var(--lime)">Brand purpose</b><div class="small">The reason a brand exists beyond profit: the positive role it plays in people's lives and in society.</div></div>
+  </div>
+</section>
+
+<!-- 18 PERCEPTUAL MAP -->
+<section class="slide light" data-title="Perceptual Map" data-notes="Our perceptual map plots global reach against range of products. Revolut sits alone in the global, all-in-one quadrant. Wise is global but sells essentially one product. Monzo, Starling and bunq — and traditional banks — offer a full range, but only locally. Trade Republic is a local investing and savings app. So Revolut's value proposition fits a need no rival covers.">
+  <div class="brand">Revolut</div><div class="stp"><span>SEGMENTATION</span><span>TARGETING</span><span class="on">POSITIONING</span></div><div class="eada">eada<sup>®</sup></div>
+  <h2 class="title r" style="margin-top:20px">Perceptual map</h2>
+  <p class="sub r d1">How customers see Revolut vs its competitors: global reach × range of products</p>
+  <div class="pmap r d2" id="pmap">
+    <div class="zone"></div>
+    <div class="axh"></div><div class="axv"></div>
+    <div class="al" style="left:50%;top:-14px;transform:translateX(-50%)">ALL-IN-ONE</div>
+    <div class="al" style="left:50%;bottom:-14px;transform:translateX(-50%)">SINGLE PRODUCT</div>
+    <div class="al" style="left:-8px;top:50%;transform:translateY(-50%)">LOCAL</div>
+    <div class="al" style="right:-8px;top:50%;transform:translateY(-50%)">GLOBAL</div>
+    <div class="brandpt" style="left:24%;top:16%" data-tip="Monzo · Starling · bunq — Local digital banks"><div class="b o"></div><div class="n">Monzo · Starling · bunq</div><div class="d">Local digital banks</div></div>
+    <div class="brandpt" style="left:24%;top:36%" data-tip="Traditional banks — Trusted, but slow and fees"><div class="b o" style="width:40px;height:40px"></div><div class="n">Traditional banks</div><div class="d">Trusted, but slow and fees</div></div>
+    <div class="brandpt rev" style="left:74%;top:20%" data-tip="Revolut — All-in-one + global. One app, low FX fees"><div class="b"></div><div class="n" style="font-size:22px">Revolut</div><div class="d">All-in-one + global</div></div>
+    <div class="brandpt" style="left:20%;top:76%" data-tip="Trade Republic — Investing & savings app"><div class="b o" style="width:40px;height:40px"></div><div class="n">Trade Republic</div><div class="d">Investing &amp; savings app</div></div>
+    <div class="brandpt" style="left:80%;top:72%" data-tip="Wise — Transfers & FX specialist"><div class="b o"></div><div class="n">Wise</div><div class="d">Transfers &amp; FX specialist</div></div>
+  </div>
+  <div class="pside">
+    <div class="card c-soft r d3"><h4 style="color:var(--blue)">What is a perceptual map?</h4><p>A diagram that maps how customers perceive different products or brands. It shows the level of fitness between our value proposition and the market.</p></div>
+    <div class="card c-blue r d4" id="ptip"><h4 style="color:var(--lime)">What it shows for Revolut</h4><p>Revolut is alone in the global + all-in-one space. Wise is global but sells one product; Monzo, Starling and banks offer everything, but only locally.</p></div>
+    <div class="card c-ink r d5"><p style="margin:0;font:700 20px/1.3 var(--fd)">Its value proposition fits a need <span style="color:var(--lime)">no rival covers.</span></p></div>
+  </div>
+  <div class="hint" style="left:auto;right:88px"><b></b> Hover a brand for detail</div>
+</section>
+
+<!-- 19 POSITIONING STATEMENT FRAMEWORK -->
+<section class="slide paper" data-title="Positioning Statement" data-notes="A positioning statement is an internal sentence that sums up who we serve, what we promise and why we are different. It follows five parts: For [target customer], who [need], [brand] is [category], that [key benefit], unlike [competitors]. Click each part to see Revolut's answer. Ultimately it answers one question: why should I buy?">
+  <div class="stp"><span>SEGMENTATION</span><span>TARGETING</span><span class="on">POSITIONING</span></div><div class="eada">eada<sup>®</sup></div>
+  <h2 class="title r" style="margin-top:20px">Positioning statement</h2>
+  <p class="sub r d1">An internal sentence that sums up who we serve, what we promise and why we are different</p>
+  <div class="psf" id="psf" data-arrows="1">
+    <div class="card c-white r d2"><div class="w">FOR</div><div class="s">[target customer]</div><div class="q">Who is it for?</div><div class="ans">internationally mobile people and businesses</div></div>
+    <div class="card c-white r d3"><div class="w">WHO</div><div class="s">[need / problem]</div><div class="q">What do they need?</div><div class="ans">manage money across borders</div></div>
+    <div class="card c-white r d4"><div class="w">IS</div><div class="s">[brand + category]</div><div class="q">What is the brand?</div><div class="ans">Revolut is the global all-in-one financial app</div></div>
+    <div class="card c-white r d5"><div class="w">THAT</div><div class="s">[key benefit]</div><div class="q">What do we promise?</div><div class="ans">lets them spend, send, save, invest and borrow in many currencies from one account, with low exchange fees</div></div>
+    <div class="card c-ink r d6"><div class="w" style="color:var(--lime)">UNLIKE</div><div class="s">[competitors]</div><div class="q">Why are we different?</div><div class="ans">local neobanks or single-product apps, it combines a licensed bank with a lifestyle ecosystem</div></div>
+  </div>
+  <div class="why r d7">ANSWERS ONE QUESTION: <em>WHY SHOULD I BUY?</em></div>
+  <div class="hint"><b></b> Click or press ↓ to fill in Revolut's answer</div>
+</section>
+
+<!-- 20 REVOLUT STATEMENT -->
+<section class="slide s-title" data-title="Revolut's Statement" data-notes="Here's our full positioning statement for Revolut: For internationally mobile people and businesses who manage money across borders, Revolut is the global all-in-one financial app that lets them spend, send, save, invest and borrow in many currencies from one account, with low exchange fees. Unlike local neobanks or single-product apps, it combines a licensed bank with a lifestyle ecosystem, so customers never need another app for their money.">
+  <div class="eada">eada<sup>®</sup></div>
+  <div class="kicker r">Revolut</div>
+  <h2 class="title r d1" style="font-size:72px">Positioning statement</h2>
+  <p class="stmt" id="stmt">
+    <span class="seg"><span class="k">For</span> internationally mobile people and businesses</span>
+    <span class="seg"><span class="k">who</span> manage money across borders,</span>
+    <span class="seg">Revolut <span class="k">is</span> the global all-in-one financial app</span>
+    <span class="seg"><span class="k">that</span> lets them spend, send, save, invest and borrow in many currencies from one account, with low exchange fees.</span>
+    <span class="seg"><span class="k">Unlike</span> local neobanks or single-product apps, it combines a licensed bank with a lifestyle ecosystem, so customers never need another app for their money.</span>
+  </p>
+  <div class="hint" style="color:rgba(255,255,255,.6)"><b></b> Press ↓ or click to build the statement</div>
+</section>
+
+<!-- 21 TEAM -->
+<section class="slide dark" data-title="Thank you" data-notes="Thank you for listening. We're happy to take your questions.">
+  <div class="eada">eada<sup>®</sup></div>
+    <div class="team">
+    <div class="m r d1"><i>01</i><span class="av">LA</span>Luca Alessi</div>
+    <div class="m r d2"><i>02</i><span class="av">EL</span>Emma Lanzetta</div>
+    <div class="m r d3"><i>03</i><span class="av">MG</span>Manuela Gatti</div>
+    <div class="m r d4"><i>04</i><span class="av">TJ</span>Tobias Vangen Jordet</div>
+    <div class="m r d5"><i>05</i><span class="av">FS</span>Frederica De Melo Damasio Da Silva</div>
+  </div>
+  <div class="r d6" style="margin-top:46px"><span class="pill">Professor: Dr. Giorgia Miotto</span></div>
+  <div class="r d7" style="position:absolute;left:0;right:0;bottom:0;background:var(--blue);padding:22px 88px;font:800 20px var(--fd);letter-spacing:.04em">MARKETING MANAGEMENT: CREATING SUSTAINABLE VALUE</div>
+  <div class="cardart ca-1 float" style="right:120px;top:140px;rotate:-12deg"></div>
+  <div class="cardart ca-2 float" style="right:200px;top:300px;rotate:4deg;animation-delay:-2s"></div>
+  <div class="cardart ca-3 float" style="right:100px;top:450px;rotate:14deg;animation-delay:-4s"></div>
+</section>
+
+</div></div>
+
+<div id="notes"><h5>Speaker notes</h5><div id="notesText"></div></div>
+<div id="overview"><h3>All slides</h3><div id="ovgrid"></div></div>
+<div id="dots"></div>
+<div id="help"><kbd>←</kbd><kbd>→</kbd> navigate · <kbd>N</kbd> notes · <kbd>O</kbd> overview · <kbd>F</kbd> fullscreen</div>
+<div id="hud">
+  <button id="bPrev" aria-label="Previous">←</button>
+  <span id="counter">1 / 20</span>
+  <button id="bNext" aria-label="Next">→</button>
+  <button id="bNotes">Notes</button>
+  <button id="bOv">Overview</button>
+  <button id="bFs">⛶</button>
+</div>
+
+<script>
+(function(){
+const stage=document.getElementById('stage');
+const slides=[...document.querySelectorAll('.slide')];
+const N=slides.length;let cur=0;
+
+function fit(){const s=Math.min(innerWidth/1600,innerHeight/900)*0.96;stage.style.transform='translate(-50%,-50%) scale('+s+')'}
+addEventListener('resize',fit);fit();
+
+/* count-up */
+function countUp(el){
+  const end=parseFloat(el.dataset.count),dec=parseInt(el.dataset.dec||0),t0=performance.now(),dur=1100;
+  function f(t){let p=Math.min((t-t0)/dur,1);p=1-Math.pow(1-p,3);el.textContent=(end*p).toFixed(dec);if(p<1)requestAnimationFrame(f)}
+  el.textContent=(0).toFixed(dec);setTimeout(()=>requestAnimationFrame(f),250);
+}
+
+/* step-through builds: per slide, an array of elements revealed by "next" */
+const builds={};
+function regBuild(idx,items,onShow){builds[idx]={items,onShow,pos:0}}
+const jIdx=slides.findIndex(s=>s.querySelector('#journey'));
+const psIdx=slides.findIndex(s=>s.querySelector('#psf'));
+const stIdx=slides.findIndex(s=>s.querySelector('#stmt'));
+regBuild(jIdx,[...document.querySelectorAll('#journey .step')],'on');
+regBuild(psIdx,[...document.querySelectorAll('#psf .card')],'open');
+regBuild(stIdx,[...document.querySelectorAll('#stmt .seg')],'lit');
+function updJ(){const f=document.getElementById('jfill');if(f&&builds[jIdx])f.style.width=(builds[jIdx].pos/5*100)+'%'}
+function resetBuild(i){const b=builds[i];if(!b)return;b.pos=0;b.items.forEach(e=>e.classList.remove(b.onShow))}
+function fillBuild(i){const b=builds[i];if(!b)return;b.pos=b.items.length;b.items.forEach(e=>e.classList.add(b.onShow))}
+function stepBuild(i){const b=builds[i];if(!b||b.pos>=b.items.length)return false;b.items[b.pos].classList.add(b.onShow);b.pos++;return true}
+function backBuild(i){const b=builds[i];if(!b||b.pos<=0)return false;b.pos--;b.items[b.pos].classList.remove(b.onShow);return true}
+
+function go(i,fromBack){
+  i=Math.max(0,Math.min(N-1,i));
+  slides[cur].classList.remove('active');
+  cur=i;const s=slides[cur];
+  void s.offsetWidth;s.classList.add('active');
+  s.querySelectorAll('[data-count]').forEach(countUp);
+  resetBuild(cur);if(fromBack)fillBuild(cur);
+  document.getElementById('counter').textContent=(cur+1)+' / '+N;
+  document.getElementById('progress').style.width=((cur+1)/N*100)+'%';
+  document.getElementById('notesText').textContent=s.dataset.notes||'';
+  document.querySelectorAll('.ov').forEach((o,k)=>o.classList.toggle('cur',k===cur));
+  slides.forEach((x,k)=>x.classList.toggle('past',k<cur));
+  document.querySelectorAll('#dots i').forEach((d,k)=>d.classList.toggle('on',k===cur));
+  updJ();
+  try{history.replaceState(null,'','#'+(cur+1))}catch(e){location.hash=String(cur+1)}
+}
+function next(){if(stepBuild(cur)){updJ();return}go(cur+1)}
+function prev(){if(backBuild(cur)){updJ();return}if(cur>0)go(cur-1,true)}
+
+/* overview */
+const ovg=document.getElementById('ovgrid');
+slides.forEach((s,k)=>{const d=document.createElement('div');d.className='ov';d.innerHTML='<small>'+String(k+1).padStart(2,'0')+'</small><div>'+(s.dataset.title||'')+'</div>';d.onclick=()=>{go(k);toggleOv(false)};ovg.appendChild(d)});
+function toggleOv(v){document.getElementById('overview').classList.toggle('show',v)}
+function toggleNotes(){document.getElementById('notes').classList.toggle('show')}
+function fs(){try{if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(()=>{});else document.exitFullscreen()}catch(e){}}
+
+document.getElementById('bPrev').onclick=prev;
+document.getElementById('bNext').onclick=next;
+document.getElementById('bNotes').onclick=toggleNotes;
+document.getElementById('bOv').onclick=()=>toggleOv(!document.getElementById('overview').classList.contains('show'));
+document.getElementById('bFs').onclick=fs;
+
+addEventListener('keydown',e=>{
+  const ov=document.getElementById('overview').classList.contains('show');
+  if(e.key==='Escape'){toggleOv(false);return}
+  if(ov)return;
+  if(['ArrowRight','PageDown',' ','Enter'].includes(e.key)){e.preventDefault();next()}
+  else if(e.key==='ArrowDown'){e.preventDefault();if(!stepBuild(cur))go(cur+1);updJ()}
+  else if(e.key==='ArrowUp'){e.preventDefault();backBuild(cur);updJ()}
+  else if(['ArrowLeft','PageUp','Backspace'].includes(e.key)){e.preventDefault();prev()}
+  else if(e.key==='Home')go(0);else if(e.key==='End')go(N-1);
+  else if(e.key==='n'||e.key==='N')toggleNotes();
+  else if(e.key==='o'||e.key==='O')toggleOv(true);
+  else if(e.key==='f'||e.key==='F')fs();
+});
+
+/* click on blank slide area advances; interactive elements handle themselves */
+stage.addEventListener('click',e=>{
+  if(e.target.closest('.interactive,.item,.step,.ring,.tgt,.brandpt,#psf .card,button,a'))return;
+  next();
+});
+
+/* swipe */
+let tx=null;addEventListener('touchstart',e=>{tx=e.touches[0].clientX},{passive:true});
+addEventListener('touchend',e=>{if(tx===null)return;const dx=e.changedTouches[0].clientX-tx;if(Math.abs(dx)>50){dx<0?next():prev()}tx=null});
+
+/* roadmap jumps */
+document.querySelectorAll('[data-goto]').forEach(el=>el.addEventListener('click',()=>go(parseInt(el.dataset.goto))));
+
+/* 5Cs spotlight */
+const fc=[...document.querySelectorAll('#fivec .card')];
+fc.forEach(c=>c.addEventListener('click',()=>{const on=c.classList.contains('focus');fc.forEach(x=>x.classList.remove('focus','dim'));if(!on){fc.forEach(x=>x.classList.add('dim'));c.classList.remove('dim');c.classList.add('focus')}}));
+
+/* SWOT focus */
+const sw=[...document.querySelectorAll('#swot .card')];
+sw.forEach(c=>c.addEventListener('click',()=>{const on=c.classList.contains('zoom');sw.forEach(x=>{x.classList.remove('zoom');x.style.opacity=''});if(!on){c.classList.add('zoom');sw.forEach(x=>{if(x!==c)x.style.opacity='.35'})}}));
+
+/* journey click */
+const js=[...document.querySelectorAll('#journey .step')];
+js.forEach((s,k)=>s.addEventListener('click',()=>{const b=builds[jIdx];b.pos=k+1;js.forEach((x,i)=>x.classList.toggle('on',i<=k));updJ()}));
+
+/* positioning cards click */
+const pc=[...document.querySelectorAll('#psf .card')];
+pc.forEach(c=>c.addEventListener('click',()=>c.classList.toggle('open')));
+
+/* target rings */
+function selT(t){document.querySelectorAll('#rings .ring,#tgts .tgt').forEach(x=>x.classList.toggle('sel',x.dataset.t===String(t)))}
+document.querySelectorAll('#rings .ring,#tgts .tgt').forEach(x=>x.addEventListener('click',e=>{e.stopPropagation();selT(x.dataset.t)}));
+
+/* perceptual map tips */
+const ptip=document.querySelector('#ptip p');const pdef=ptip.textContent;
+document.querySelectorAll('.brandpt').forEach(b=>{
+  b.addEventListener('mouseenter',()=>{ptip.textContent=b.dataset.tip});
+  b.addEventListener('mouseleave',()=>{ptip.textContent=pdef});
+  b.addEventListener('click',()=>{ptip.textContent=b.dataset.tip});
+});
+
+
+/* ===== DYNAMIC LAYER JS ===== */
+// split titles into words
+document.querySelectorAll('.title,.t-sub,.def').forEach(el=>{
+  let k=0;
+  const walk=n=>{[...n.childNodes].forEach(c=>{
+    if(c.nodeType===3){const frag=document.createDocumentFragment();
+      c.textContent.split(/(\s+)/).forEach(tok=>{if(!tok)return;if(/^\s+$/.test(tok)){frag.appendChild(document.createTextNode(tok));return}
+        const w=document.createElement('span');w.className='w';const i=document.createElement('span');i.textContent=tok;i.style.transitionDelay=(0.12+k*0.06)+'s';k++;w.appendChild(i);frag.appendChild(w)});
+      c.replaceWith(frag)}
+    else if(c.nodeType===1&&c.tagName!=='BR'){walk(c)}})};
+  walk(el)});
+// letters for big title
+const tr=document.querySelector('.t-rev');if(tr){const txt=tr.textContent;tr.textContent='';[...txt].forEach((ch,i)=>{const w=document.createElement('span');w.className='w';const s2=document.createElement('span');s2.textContent=ch;s2.style.transitionDelay=(0.1+i*0.055)+'s';w.appendChild(s2);tr.appendChild(w)})}
+
+// tilt + glare
+function stageScale(){const r=stage.getBoundingClientRect();return r.width/1600}
+document.querySelectorAll('.card,.road .item').forEach(c=>{
+  c.addEventListener('mousemove',e=>{
+    const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
+    c.style.setProperty('--mx',(x*100)+'%');c.style.setProperty('--my',(y*100)+'%');
+    if(!c.closest('.slide.active'))return;
+    c.classList.add('tilting');
+    const lift=c.classList.contains('focus')?-10:-4;
+    c.style.transform=`perspective(900px) rotateX(${(0.5-y)*8}deg) rotateY(${(x-0.5)*10}deg) translateY(${lift}px)`;
+  });
+  c.addEventListener('mouseleave',()=>{c.classList.remove('tilting');c.style.transform=''});
+});
+
+// parallax on floating cards
+stage.addEventListener('mousemove',e=>{
+  const r=stage.getBoundingClientRect(),dx=(e.clientX-r.left)/r.width-0.5,dy=(e.clientY-r.top)/r.height-0.5;
+  slides[cur].querySelectorAll('.cardart').forEach((c,i)=>{const d=(i+1)*18;c.style.transform=`translate3d(${-dx*d}px,${-dy*d}px,0)`});
+});
+document.querySelectorAll('.cardart').forEach(c=>c.style.transition='transform .4s ease-out');
+
+// dots
+const dots=document.getElementById('dots');
+slides.forEach((_,k)=>{const d=document.createElement('i');d.title=slides[k].dataset.title||'';d.onclick=()=>go(k);dots.appendChild(d)});
+
+/* auto-hide controls */
+let idleT;function wake(){document.body.classList.remove('idle');clearTimeout(idleT);idleT=setTimeout(()=>document.body.classList.add('idle'),2500)}
+['mousemove','touchstart','keydown'].forEach(ev=>addEventListener(ev,wake,{passive:true}));wake();
+/* start */
+let start=parseInt((location.hash||'').replace('#',''))||1;
+slides[0].classList.add('active');cur=0;go(start-1);
+addEventListener('hashchange',()=>{const h=parseInt(location.hash.replace('#',''));if(h&&h-1!==cur)go(h-1)});
+})();
+</script>
+</body>
+</html>
