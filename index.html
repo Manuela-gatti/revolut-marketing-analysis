@@ -241,7 +241,7 @@ ul.clean li{font-size:16px;line-height:1.35;padding:7px 0;border-top:1px solid r
 
 .stmt{font:500 46px/1.35 var(--fd);letter-spacing:-.02em;max-width:1300px;margin-top:40px}
 .stmt .k{font-weight:900;color:var(--lime)}
-.stmt .seg{opacity:.18;transition:opacity .6s}
+.stmt .seg{opacity:1}
 .stmt .seg.lit{opacity:1}
 
 /* team */
@@ -767,7 +767,6 @@ body.idle{cursor:none}
     <span class="seg"><span class="k">that</span> lets them spend, send, save, invest and borrow in many currencies from one account, with low exchange fees.</span>
     <span class="seg"><span class="k">Unlike</span> local neobanks or single-product apps, it combines a licensed bank with a lifestyle ecosystem, so customers never need another app for their money.</span>
   </p>
-  <div class="hint" style="color:rgba(255,255,255,.6)"><b></b> Press ↓ or click to build the statement</div>
 </section>
 
 <!-- 21 TEAM -->
@@ -826,7 +825,6 @@ const psIdx=slides.findIndex(s=>s.querySelector('#psf'));
 const stIdx=slides.findIndex(s=>s.querySelector('#stmt'));
 regBuild(jIdx,[...document.querySelectorAll('#journey .step')],'on');
 regBuild(psIdx,[...document.querySelectorAll('#psf .card')],'open');
-regBuild(stIdx,[...document.querySelectorAll('#stmt .seg')],'lit');
 function updJ(){const f=document.getElementById('jfill');if(f&&builds[jIdx])f.style.width=(builds[jIdx].pos/5*100)+'%'}
 function resetBuild(i){const b=builds[i];if(!b)return;b.pos=0;b.items.forEach(e=>e.classList.remove(b.onShow))}
 function fillBuild(i){const b=builds[i];if(!b)return;b.pos=b.items.length;b.items.forEach(e=>e.classList.add(b.onShow))}
